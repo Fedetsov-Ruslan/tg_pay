@@ -3,13 +3,13 @@ import asyncio
 
 from aiogram import Bot, Dispatcher
 
-from app.config import TG_TOKEN
-from app.middlewares.db import DataBaseSession
-from app.database.engine import create_db, session_maker
-from app.handlers.user_private import router as user_private_router
+from config import TG_TOKEN
+from middlewares.db import DataBaseSession
+from database.engine import create_db, session_maker
+from handlers.user_private import router as user_private_router
 
 bot = Bot(TG_TOKEN)
-dp = Dispatcher(bot)
+dp = Dispatcher()
 dp.include_router(user_private_router)
 
 
