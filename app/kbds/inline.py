@@ -39,8 +39,15 @@ def get_paginated_for_products(products: list, page: int = 0):
     keyboard = InlineKeyboardBuilder()
     if page > 0:
         keyboard.add(InlineKeyboardButton(text="← Previous", callback_data=f"page_{page - 1}"))
-    keyboard.add(InlineKeyboardButton(text="Выбрать товар", callback_data="select_product"))
+    keyboard.add(InlineKeyboardButton(text="Добавить в корзину", callback_data=f"select_product_{products[page].id}"))
     if page < len(products):
         keyboard.add(InlineKeyboardButton(text="Next →", callback_data=f"page_{page + 1}"))
 
-    return keyboard.adjust(3,).as_markup()
+    return keyboard.adjust(1,1,1).as_markup()
+
+
+def get_confirm_keyboard() -> InlineKeyboardMarkup:
+    keyboard = InlineKeyboardBuilder()
+    keyboard.add(InlineKeyboardButton(text="Подтвердить", callback_data="confirm"))
+    keyboard.add(InlineKeyboardButton(text="Отмена", callback_data="cancel"))
+    return keyboard.adjust(1,1).as_markup()

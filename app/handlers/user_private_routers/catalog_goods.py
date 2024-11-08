@@ -1,19 +1,22 @@
 from aiogram import Router, F
-from aiogram.types import  CallbackQuery, InputMediaPhoto
+from aiogram.types import  CallbackQuery, InputMediaPhoto, Message
 from aiogram.filters import CommandStart, Command, StateFilter
 from aiogram.fsm.context import FSMContext
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from database.orm_query import (
+    orm_create_cart,
     orm_get_all_categories,
     orm_get_all_subcategories,
     orm_get_all_goods,
+    orm_get_product_name_for_id,
     )
 from handlers.fsm.states import CatalogActions
 from kbds.inline import (
+    get_confirm_keyboard,
     get_start_menu_kbds,
     get_paginator_keyboard,
-    get_paginated_for_products
+    get_paginated_for_products,
     )
 
 router = Router()
@@ -83,21 +86,36 @@ async def search_category(callback: CallbackQuery, state: FSMContext, session: A
                                       
 
 @router.callback_query(F.data.startswith("select_product"), CatalogActions.select_product)
-async def add_to_cart(callback: CallbackQuery, state: FSMContext, session: AsyncSession):
-    await state.update_data(product=callback.data)
-    
-    await state.set_state(CatalogActions.add_cart)
-    
-    
-@router.callback_query(CatalogActions.add_cart)
-async def count(callback: CallbackQuery, state: FSMContext, session: AsyncSession):
-    await state.update_data(add_cart=callback.data)
-    
+async def select_count(callback: CallbackQuery, state: FSMContext, session: AsyncSession):
+    product = int(callback.data.split('_')[-1])
+    await state.update_data(select_product=product)
+    await callback.message.answer("Введите количество")
     await state.set_state(CatalogActions.count)
     
+      
     
-@router.callback_query(CatalogActions.count)
+@router.message(CatalogActions.count)
+async def confirm(message: Message, state: FSMContext, session: AsyncSession):
+    print(123)
+    try:
+        count = int(message.text)
+        await state.update_data(count=count)
+        data = await state.get_data()
+        product_name = await orm_get_product_name_for_id(session=session, id=data['select_product'])
+        await message.answer(f"Товар: {product_name}\nКоличество: {count}", reply_markup=get_confirm_keyboard())
+        await state.set_state(CatalogActions.confirm)
+        await state.update_data(confirm=product_name)
+    except:
+        await message.answer("Количество должно быть целым числом")
+        
+
+@router.callback_query(CatalogActions.confirm)
 async def confirm(callback: CallbackQuery, state: FSMContext, session: AsyncSession):
-    await state.update_data(count=callback.data)
+    data = await state.get_data()
+    cart = await orm_create_cart(session=session, user_id=callback.from_user.id, product_id=data['select_product'], count=data['count'])
+    print(cart.id)
+    await callback.message.answer(f"Товар: {data['confirm']} добавлен в корзину в количество {data['count']}", reply_markup=get_start_menu_kbds())
+    await state.clear()
+
     
-    await state.set_state(CatalogActions.confirm)
+    

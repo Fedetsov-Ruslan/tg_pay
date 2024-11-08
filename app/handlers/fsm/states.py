@@ -11,3 +11,9 @@ class CatalogActions(StatesGroup):
     add_cart = State()
     count = State()
     confirm = State()
+    
+
+class CartActions(StatesGroup):
+    viewing_cart = State()
+    entering_data_for_delivery = State()
+    payment = State()

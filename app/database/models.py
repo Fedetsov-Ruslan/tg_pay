@@ -37,3 +37,23 @@ class Good(Base):
     
     def __repr__(self):
         return f"<Good {self.id} {self.name} {self.subcategory_id}>"
+
+
+class User(Base):
+    __tablename__ = "user"
+    
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    name: Mapped[str] = mapped_column(String(255), nullable=False)
+    telegram_id: Mapped[int] = mapped_column(Integer, nullable=False)
+    created: Mapped[Date] = mapped_column(Date, default=date.today())
+    updated: Mapped[Date] = mapped_column(Date, default=date.today(), onupdate=date.today())
+    
+class Cart(Base):
+    __tablename__ = "cart"
+    
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("user.id"), nullable=False)
+    good_id: Mapped[int] = mapped_column(ForeignKey("good.id"), nullable=False)
+    quantity: Mapped[int] = mapped_column(Integer, nullable=False)
+    created: Mapped[Date] = mapped_column(Date, default=date.today())
+    updated: Mapped[Date] = mapped_column(Date, default=date.today(), onupdate=date.today())

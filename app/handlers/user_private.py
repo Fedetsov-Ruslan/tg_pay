@@ -2,12 +2,15 @@ from aiogram import Router, F, types
 from aiogram.types import  CallbackQuery, Message
 from aiogram.filters import CommandStart, Command, StateFilter
 from aiogram.fsm.context import FSMContext
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from config import CHANNEL_ID
 from handlers.user_private_routers.cart_goods import router as cart_goods_router
 from handlers.user_private_routers.catalog_goods import router as catalog_goods_router
 from handlers.user_private_routers.questions import router as questions_router
 from kbds.inline import get_start_menu_kbds
+from database.orm_query import orm_create_user
+
 
 
 router = Router()
@@ -27,9 +30,10 @@ router.include_router(questions_router)
 
 
 @router.message(CommandStart())
-async def start(message: Message, state: FSMContext):
+async def start(message: Message, state: FSMContext, session: AsyncSession):
     user = message.from_user.id
-    print(user)
+    await orm_create_user(session=session, user_id=user, name=message.from_user.full_name)    
+    
     # bot_instanse = message.bot()
     # if await check_subscription(user, bot_instanse):
     await message.answer('Добро пожаловать за покупками', reply_markup=get_start_menu_kbds())
