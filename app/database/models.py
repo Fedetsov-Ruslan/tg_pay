@@ -32,6 +32,7 @@ class Good(Base):
     
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     name: Mapped[str] = mapped_column(String(255), nullable=False)
+    photo_url: Mapped[str] = mapped_column(String(255), nullable=False)
     subcategory_id: Mapped[int] = mapped_column(ForeignKey("subcategory.id"), nullable=False)
     
     def __repr__(self):

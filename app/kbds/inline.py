@@ -1,5 +1,6 @@
-from aiogram.types import InlineKeyboardButton
+from aiogram.types import InlineKeyboardButton, InputMediaPhoto, InlineKeyboardMarkup
 from aiogram.utils.keyboard import InlineKeyboardBuilder
+from aiogram.types import  CallbackQuery
 
 
 
@@ -32,3 +33,14 @@ def get_paginator_keyboard(*,
         navigation_buttons.append(InlineKeyboardButton(text="Следующая страница", callback_data=f"page_{page + 1}"))
     keyboard.add(*navigation_buttons)
     return keyboard.adjust(*sizes).as_markup()
+
+
+def get_paginated_for_products(products: list, page: int = 0):
+    keyboard = InlineKeyboardBuilder()
+    if page > 0:
+        keyboard.add(InlineKeyboardButton(text="← Previous", callback_data=f"page_{page - 1}"))
+    keyboard.add(InlineKeyboardButton(text="Выбрать товар", callback_data="select_product"))
+    if page < len(products):
+        keyboard.add(InlineKeyboardButton(text="Next →", callback_data=f"page_{page + 1}"))
+
+    return keyboard.adjust(3,).as_markup()

@@ -20,8 +20,11 @@ async def orm_get_all_subcategories(session: AsyncSession, category: str):
     return result.scalars().all()
 
 
-async def orm_get_all_goods(session: AsyncSession):
-    result = await session.execute(select(Good))
+async def orm_get_all_goods(session: AsyncSession, subcategory: str):
+    result = await session.execute(select(Good).where(
+        Good.subcategory_id == select(Subcategory.id).where(Subcategory.name == subcategory).scalar_subquery()
+        )
+    )
     return result.scalars().all()
 
 
