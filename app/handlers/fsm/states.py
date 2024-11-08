@@ -15,5 +15,8 @@ class CatalogActions(StatesGroup):
 
 class CartActions(StatesGroup):
     viewing_cart = State()
-    entering_data_for_delivery = State()
+    city = State()
+    address = State()
+    house = State()
+    flatt = State()
     payment = State()

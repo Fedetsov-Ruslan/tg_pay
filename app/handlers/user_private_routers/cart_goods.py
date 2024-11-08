@@ -1,15 +1,17 @@
 from aiogram import Router, F
-from aiogram.types import  CallbackQuery, InputMediaPhoto
+from aiogram.types import  CallbackQuery, InputMediaPhoto, Message
 from aiogram.filters import CommandStart, Command, StateFilter
 from aiogram.fsm.context import FSMContext
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from kbds.inline import get_paginated_for_carts
+from kbds.inline import get_paginated_for_carts, get_payment_keyboard, pay_url_kbds
 from database.orm_query import (
     orm_get_carts,
     orm_delete_product_in_cart
 )
 from handlers.fsm.states import CartActions
+from config import YOU_MONYE_API_KEY
+from yookassa_payment import yookassa_payment
 
 router = Router()
 
@@ -59,7 +61,57 @@ async def delete_cart(callback: CallbackQuery, state: FSMContext, session: Async
     
     
 @router.callback_query(F.data.startswith("order"), CartActions.viewing_cart)
-async def order(callback: CallbackQuery, state: FSMContext, session: AsyncSession):
-    pass
+async def inter_city(callback: CallbackQuery, state: FSMContext, session: AsyncSession):
+    await state.set_state(CartActions.city)
+    
+    await callback.message.answer("Введите город")
+    
+    
+@router.message(CartActions.city)
+async def inter_address(message: Message, state: FSMContext):
+    await state.update_data(city=message.text)
+    await state.set_state(CartActions.address)
+    
+    await message.answer("Введите улицу")
+    
+    
+@router.message(CartActions.address)
+async def inter_house(message: Message, state: FSMContext):
+    await state.update_data(address=message.text)
+    await state.set_state(CartActions.house)
+    
+    await message.answer("Введите дом")
+    
+    
+@router.message(CartActions.house)
+async def inter_flat(message: Message, state: FSMContext):
+    await state.update_data(house=message.text)
+    await state.set_state(CartActions.flatt)
+    
+    await message.answer("Введите квартиру")
+    
+
+@router.message(CartActions.flatt)
+async def inter_payment(message: Message, state: FSMContext):
+    await state.update_data(flatt=message.text)
+    await state.set_state(CartActions.payment)
+    
+    await message.answer("Оплатить товары?", reply_markup=get_payment_keyboard())
+    
+    
+@router.callback_query(F.data.startswith("payment"), CartActions.payment)
+async def payment(callback: CallbackQuery, state: FSMContext, session: AsyncSession):
+    
+    # try:
+        payment_url = await yookassa_payment(
+            payment_id=str(callback.from_user.id),
+            amount=10000,
+            description="Оплата покупок"
+        )
+        await callback.message.reply("Для оплаты нажмите на кнопку ниже", reply_markup=pay_url_kbds(payment_url))
+    # except Exception as e:
+    #     print(e)
+    #     await callback.message.reply("Произошла ошибка, попробуйте позже")
+        
    
     

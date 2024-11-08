@@ -62,3 +62,17 @@ def get_confirm_keyboard() -> InlineKeyboardMarkup:
     keyboard.add(InlineKeyboardButton(text="Подтвердить", callback_data="confirm"))
     keyboard.add(InlineKeyboardButton(text="Отмена", callback_data="cancel"))
     return keyboard.adjust(1,1).as_markup()
+
+
+def get_payment_keyboard() -> InlineKeyboardMarkup:
+    keyboard = InlineKeyboardBuilder()
+    keyboard.add(InlineKeyboardButton(text="Оплатить", callback_data="payment"))
+    keyboard.add(InlineKeyboardButton(text="Отмена", callback_data="cancel"))
+    return keyboard.adjust(1,1).as_markup()
+
+
+def pay_url_kbds(payment_url: str):
+    keyboard = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="Оплатить", url=payment_url)]
+        ])
+    return keyboard
