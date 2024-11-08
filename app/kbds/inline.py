@@ -7,7 +7,7 @@ from aiogram.types import  CallbackQuery
 def get_start_menu_kbds():
     keyboard = InlineKeyboardBuilder()
     keyboard.add(InlineKeyboardButton(text="📚 Каталог", callback_data="catalog"))
-    keyboard.add(InlineKeyboardButton(text="🛒 Корзина", callback_data="cars"))
+    keyboard.add(InlineKeyboardButton(text="🛒 Корзина", callback_data="cart"))
     keyboard.add(InlineKeyboardButton(text="📊 Ответы на вопросы", callback_data="faq"))
     return keyboard.as_markup()
 
@@ -40,10 +40,21 @@ def get_paginated_for_products(products: list, page: int = 0):
     if page > 0:
         keyboard.add(InlineKeyboardButton(text="← Previous", callback_data=f"page_{page - 1}"))
     keyboard.add(InlineKeyboardButton(text="Добавить в корзину", callback_data=f"select_product_{products[page].id}"))
-    if page < len(products):
+    if page < len(products)-1:
         keyboard.add(InlineKeyboardButton(text="Next →", callback_data=f"page_{page + 1}"))
 
     return keyboard.adjust(1,1,1).as_markup()
+
+
+def get_paginated_for_carts(carts: list, page: int = 0):
+    keyboard = InlineKeyboardBuilder()
+    if page > 0:
+        keyboard.add(InlineKeyboardButton(text="← Previous", callback_data=f"page_{page - 1}"))
+    if page < len(carts)-1:
+        keyboard.add(InlineKeyboardButton(text="Next →", callback_data=f"page_{page + 1}"))
+    keyboard.add(InlineKeyboardButton(text="Удалить", callback_data=f"delete_cart_{carts[page].id}"))
+    keyboard.add(InlineKeyboardButton(text="Оформить заказ", callback_data="order"))
+    return keyboard.adjust(1,1,1,1).as_markup()
 
 
 def get_confirm_keyboard() -> InlineKeyboardMarkup:
