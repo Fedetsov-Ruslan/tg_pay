@@ -9,7 +9,14 @@ def get_start_menu_kbds():
     keyboard.add(InlineKeyboardButton(text="📚 Каталог", callback_data="catalog"))
     keyboard.add(InlineKeyboardButton(text="🛒 Корзина", callback_data="cart"))
     keyboard.add(InlineKeyboardButton(text="📊 Ответы на вопросы", callback_data="faq"))
+    
     return keyboard.as_markup()
+
+def get_inline_mode_button():
+    keyboard = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="Задать вопрос", switch_inline_query="")]
+    ])
+    return keyboard
 
 
 def get_paginator_keyboard(*, 

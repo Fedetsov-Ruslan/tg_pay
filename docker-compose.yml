@@ -1,0 +1,31 @@
+services:
+  bot:
+    image: tg_shop_pay
+    container_name: tg_shop_pay
+
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}
+    depends_on:
+      - db
+    ports:
+      - "8000:8000"
+    networks:
+      - shop_pay
+
+  db:
+    image: postgres
+    container_name: 'tg_fastapi_weather_db'
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+
+    networks:
+      - shop_pay
+
+
+networks:
+  shop_pay:
+    driver: bridge
