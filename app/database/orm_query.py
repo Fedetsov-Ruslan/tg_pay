@@ -1,7 +1,4 @@
-import datetime
-
-from sqlalchemy import delete, distinct, select
-from sqlalchemy.orm import Query
+from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from database.models import (

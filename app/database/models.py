@@ -1,12 +1,10 @@
-from sqlalchemy import DateTime,Date, String, func, Integer,  ForeignKey, Enum, ARRAY, Float
+from sqlalchemy import Date, String, Integer,  ForeignKey
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from datetime import date
 
 
 
 class Base(DeclarativeBase):
-    # created: Mapped[DateTime] = mapped_column(DateTime, default=func.now())
-    # updated: Mapped[DateTime] = mapped_column(DateTime, default=func.now(), onupdate=func.now())
     pass
     
 class Category(Base):

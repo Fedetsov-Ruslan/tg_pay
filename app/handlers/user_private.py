@@ -1,6 +1,6 @@
-from aiogram import Router, F, types
-from aiogram.types import  CallbackQuery, Message
-from aiogram.filters import CommandStart, Command, StateFilter
+from aiogram import Router
+from aiogram.types import Message
+from aiogram.filters import CommandStart
 from aiogram.fsm.context import FSMContext
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -20,22 +20,18 @@ router.include_router(catalog_goods_router)
 router.include_router(questions_router)
 
 
-# async def check_subscription(user_id: int, bot:types.Bot) -> bool:
-#     try:
-#         chat_member = await bot.get_chat_member(chat_id=CHANNEL_ID, user_id=user_id)
-#         return chat_member.status in ["member", "administrator", "creator"]
-#     except Exception as e:
-#         print(e)
-#         return False
-
-
 @router.message(CommandStart())
-async def start(message: Message, state: FSMContext, session: AsyncSession):
+async def start(message: Message, session: AsyncSession):
     user = message.from_user.id
-    await orm_create_user(session=session, user_id=user, name=message.from_user.full_name)    
-    
-    # bot_instanse = message.bot()
-    # if await check_subscription(user, bot_instanse):
-    await message.answer('Добро пожаловать за покупками', reply_markup=get_start_menu_kbds())
+        
+    try:
+        await message.bot.get_chat_member(chat_id=CHANNEL_ID, user_id=user)
+        await orm_create_user(session=session, user_id=user, name=message.from_user.full_name)
+        await message.answer(
+            'Добро пожаловать за покупками',
+            reply_markup=get_start_menu_kbds()
+            )
+    except:
+        await message.answer('Подпишитесь на наш канал чтобы пользоваться ботом')
 
     

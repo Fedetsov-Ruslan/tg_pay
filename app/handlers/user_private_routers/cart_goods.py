@@ -1,17 +1,20 @@
 from aiogram import Router, F
 from aiogram.types import  CallbackQuery, InputMediaPhoto, Message
-from aiogram.filters import CommandStart, Command, StateFilter
 from aiogram.fsm.context import FSMContext
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from kbds.inline import get_paginated_for_carts, get_payment_keyboard, pay_url_kbds
+from kbds.inline import (
+    get_paginated_for_carts,
+    get_payment_keyboard,
+    pay_url_kbds
+)
 from database.orm_query import (
     orm_get_carts,
     orm_delete_product_in_cart
 )
 from handlers.fsm.states import CartActions
-from config import YOU_MONYE_API_KEY
 from yookassa_payment import yookassa_payment
+
 
 router = Router()
 
@@ -61,7 +64,7 @@ async def delete_cart(callback: CallbackQuery, state: FSMContext, session: Async
     
     
 @router.callback_query(F.data.startswith("order"), CartActions.viewing_cart)
-async def inter_city(callback: CallbackQuery, state: FSMContext, session: AsyncSession):
+async def inter_city(callback: CallbackQuery, state: FSMContext):
     await state.set_state(CartActions.city)
     
     await callback.message.answer("Введите город")
@@ -96,22 +99,27 @@ async def inter_payment(message: Message, state: FSMContext):
     await state.update_data(flatt=message.text)
     await state.set_state(CartActions.payment)
     
-    await message.answer("Оплатить товары?", reply_markup=get_payment_keyboard())
+    await message.answer(
+        "Оплатить товары?",
+        reply_markup=get_payment_keyboard()
+        )
     
     
 @router.callback_query(F.data.startswith("payment"), CartActions.payment)
-async def payment(callback: CallbackQuery, state: FSMContext, session: AsyncSession):
+async def payment(callback: CallbackQuery):
     
-    # try:
+    try:
         payment_url = await yookassa_payment(
             payment_id=str(callback.from_user.id),
             amount=10000,
             description="Оплата покупок"
         )
-        await callback.message.reply("Для оплаты нажмите на кнопку ниже", reply_markup=pay_url_kbds(payment_url))
-    # except Exception as e:
-    #     print(e)
-    #     await callback.message.reply("Произошла ошибка, попробуйте позже")
+        await callback.message.reply(
+            "Для оплаты нажмите на кнопку ниже",
+            reply_markup=pay_url_kbds(payment_url)
+            )
+    except:
+        await callback.message.reply("Произошла ошибка, попробуйте позже")
         
    
     

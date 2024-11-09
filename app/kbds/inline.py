@@ -1,7 +1,5 @@
-from aiogram.types import InlineKeyboardButton, InputMediaPhoto, InlineKeyboardMarkup
+from aiogram.types import InlineKeyboardButton,  InlineKeyboardMarkup
 from aiogram.utils.keyboard import InlineKeyboardBuilder
-from aiogram.types import  CallbackQuery
-
 
 
 def get_start_menu_kbds():
