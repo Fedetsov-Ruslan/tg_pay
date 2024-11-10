@@ -76,4 +76,10 @@ async def orm_delete_product_in_cart(session: AsyncSession, cart_id: int):
     query = delete(Cart).where(Cart.id == cart_id)
     await session.execute(query)
     await session.commit()
+    
+
+async def orm_clear_cart(session: AsyncSession, telegram_id: int):
+    query = delete(Cart).where(Cart.user_id == select(User.id).where(User.telegram_id == telegram_id).scalar_subquery())
+    await session.execute(query)
+    await session.commit()
 

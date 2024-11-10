@@ -6,9 +6,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from kbds.inline import (
     get_paginated_for_carts,
     get_payment_keyboard,
+    get_start_menu_kbds,
     pay_url_kbds
 )
 from database.orm_query import (
+    orm_clear_cart,
     orm_get_carts,
     orm_delete_product_in_cart
 )
@@ -24,6 +26,16 @@ async def view_cart(callback: CallbackQuery, state: FSMContext, session: AsyncSe
     await state.set_state(CartActions.viewing_cart)
     cart = await orm_get_carts(session=session, telegram_id=callback.from_user.id)
     cart_list = [i for i in cart]
+    if len(cart_list) == 0:
+        await callback.message.answer(
+            "Ваша корзина пуста"
+            )
+        await callback.message.answer(
+            "Выберите товары в каталоге", 
+            reply_markup=get_start_menu_kbds()
+        )
+        await state.clear()
+        return
     await state.update_data(view_cart=cart_list)
     
     await callback.message.answer_photo(
@@ -106,7 +118,7 @@ async def inter_payment(message: Message, state: FSMContext):
     
     
 @router.callback_query(F.data.startswith("payment"), CartActions.payment)
-async def payment(callback: CallbackQuery):
+async def payment(callback: CallbackQuery, state: FSMContext, session: AsyncSession):
     
     try:
         payment_url = await yookassa_payment(
@@ -118,8 +130,16 @@ async def payment(callback: CallbackQuery):
             "Для оплаты нажмите на кнопку ниже",
             reply_markup=pay_url_kbds(payment_url)
             )
+        await orm_clear_cart(session=session, telegram_id=callback.from_user.id)
     except:
-        await callback.message.reply("Произошла ошибка, попробуйте позже")
+        await callback.message.reply(
+            "Произошла ошибка, попробуйте позже",
+            reply_markup=get_start_menu_kbds()
+            )
+        await state.clear()   
+        
+
+
         
    
     

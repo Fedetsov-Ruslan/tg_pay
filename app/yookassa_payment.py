@@ -1,6 +1,6 @@
 from yookassa import Configuration, Payment
 
-from config import YOU_MONYE_API_KEY, SHOP_ID
+from config import YOU_MONYE_API_KEY, SHOP_ID, CHANNEL_ID
 
 
 Configuration.secret_key = YOU_MONYE_API_KEY
@@ -14,7 +14,7 @@ async def yookassa_payment(payment_id: str, amount: int, description: str):
         },
         "confirmation": {
             "type": "redirect",
-            "return_url": "http://127.0.0.1:8000/payment/success"
+            "return_url": f"https://t.me/<имя бота>?start=payment_success"
         },
         "capture": True,
         "description": description,

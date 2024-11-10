@@ -23,14 +23,20 @@ router.include_router(questions_router)
 @router.message(CommandStart())
 async def start(message: Message, session: AsyncSession):
     user = message.from_user.id
-        
     try:
-        await message.bot.get_chat_member(chat_id=CHANNEL_ID, user_id=user)
-        await orm_create_user(session=session, user_id=user, name=message.from_user.full_name)
-        await message.answer(
-            'Добро пожаловать за покупками',
-            reply_markup=get_start_menu_kbds()
-            )
+        if message.text.split()[-1] == "payment_success":
+            await message.answer("Оплата успешно завершена! Спасибо за покупку.")
+            await message.answer(
+                'Добро пожаловать за покупками',
+                reply_markup=get_start_menu_kbds()
+                )
+        else:
+            await message.bot.get_chat_member(chat_id=CHANNEL_ID, user_id=user)
+            await orm_create_user(session=session, user_id=user, name=message.from_user.full_name)
+            await message.answer(
+                'Добро пожаловать за покупками',
+                reply_markup=get_start_menu_kbds()
+                )
     except:
         await message.answer('Подпишитесь на наш канал чтобы пользоваться ботом')
 
